@@ -25,22 +25,22 @@ const (
 )
 
 // [field]:condition
-type Filter map[string]Condition
+type Filter map[string]QCondition
 
 // [operator]:values
-type Condition map[Operator][]any
+type QCondition map[Operator][]any
 
 type Query struct {
 	Filter     Filter
-	Pagination *Pagination
+	Pagination *QPagination
 }
 
-type Sort struct {
+type QSort struct {
 	Key       string
 	Direction Direction
 }
-type Pagination struct {
-	Sorts  []Sort
+type QPagination struct {
+	Sorts  []QSort
 	Offset uint
 	Limit  uint
 }
@@ -48,8 +48,8 @@ type Pagination struct {
 func NewQuery() *Query {
 	return &Query{
 		Filter: make(Filter),
-		Pagination: &Pagination{
-			Sorts:  make([]Sort, 0),
+		Pagination: &QPagination{
+			Sorts:  make([]QSort, 0),
 			Offset: 0,
 			Limit:  0,
 		},

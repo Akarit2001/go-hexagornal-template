@@ -2,7 +2,7 @@ package service_test
 
 import (
 	"fmt"
-	mock_user "go-hex-temp/internal/adapters/out/mock/user"
+	"go-hex-temp/internal/adapters/out/repositories"
 	"go-hex-temp/internal/core/domain"
 	"go-hex-temp/internal/core/service"
 	"testing"
@@ -11,9 +11,9 @@ import (
 )
 
 func TestGetUserById(t *testing.T) {
-	mockRepo := new(mock_user.UserRepositoryMock)
+	mockRepo := new(repositories.UserRepositoryMock)
 	// qCom := service.NewQCompiler()
-	userService := service.NewUserService(mockRepo, nil)
+	userService := service.NewUserService(mockRepo, nil, nil)
 
 	t.Run("success", func(t *testing.T) {
 		expectedUser := &domain.User{ID: "123", Name: "Test"}
@@ -37,13 +37,13 @@ func TestGetUserById(t *testing.T) {
 	})
 }
 func TestGetUsers(t *testing.T) {
-	mockRepo := new(mock_user.UserRepositoryMock)
+	mockRepo := new(repositories.UserRepositoryMock)
 	qCom := service.NewQCompiler()
-	userService := service.NewUserService(mockRepo, qCom)
+	userService := service.NewUserService(mockRepo, qCom, nil)
 
 	t.Run("success", func(t *testing.T) {
 		query := domain.NewQuery()
-		query.Filter["name"] = domain.Condition{
+		query.Filter["name"] = domain.QCondition{
 			domain.Eq: []any{"John"},
 		}
 		expectedUsers := []domain.User{
@@ -51,11 +51,16 @@ func TestGetUsers(t *testing.T) {
 			{ID: "456", Name: "Developer"},
 		}
 
-		mockRepo.On("Find", query).Return(expectedUsers, nil).Once()
+		expectedPage := &domain.Paginated[domain.User]{
+			Items:      expectedUsers,
+			TotalCount: 30,
+		}
 
-		user, err := userService.GetUsers(query)
+		mockRepo.On("Find", query).Return(expectedPage, nil).Once()
+
+		page, err := userService.GetUsers(query)
 		assert.NoError(t, err)
-		assert.Equal(t, expectedUsers, user)
+		assert.Equal(t, expectedPage, page)
 
 		mockRepo.AssertExpectations(t)
 	})

@@ -5,4 +5,5 @@ import "github.com/gin-gonic/gin"
 func RegisterRoutes(r *gin.RouterGroup, handler *userHandler) {
 	r.POST("/", handler.CreateUser)
 	r.GET("/", handler.FindUsers)
+	r.GET("/:userId", handler.FindUserById)
 }

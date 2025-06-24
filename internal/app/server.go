@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	userHttp "go-hex-temp/internal/adapters/in/httpx/user"
+	"go-hex-temp/internal/adapters/out/cache"
+	"go-hex-temp/internal/adapters/out/repositories"
 	"go-hex-temp/internal/core/service"
 	"go-hex-temp/internal/infrastructure/config"
 	"go-hex-temp/internal/infrastructure/logx"
@@ -48,12 +50,11 @@ func (s *Server) setUp() {
 	r := gin.Default()
 	api := r.Group("/api")
 
-	// Example: profile route
-	// profileRepo := memory.NewProfileRepository() or mongo.New...
-	// profileService := service.NewProfileService(profileRepo)
-	// profileHandler := profileHttp.NewHandler(profileService)
-	// profileHttp.RegisterRoutes(api.Group("/profile"), profileHandler)
-	userService := service.NewUserService(nil, service.NewQCompiler())
+	cache := cache.NewInMemoryCache()
+	qCompiler := service.NewQCompiler()
+
+	userRepo := repositories.NewInMemoryRepoUser()
+	userService := service.NewUserService(userRepo, qCompiler, cache)
 	userHandler := userHttp.NewUserHandler(userService)
 	userHttp.RegisterRoutes(api.Group("users"), userHandler)
 

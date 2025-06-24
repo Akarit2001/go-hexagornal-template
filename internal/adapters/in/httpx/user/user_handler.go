@@ -2,6 +2,8 @@ package httpx
 
 import (
 	"go-hex-temp/internal/adapters/in/httpx/driver"
+	"go-hex-temp/internal/adapters/in/httpx/jsonapi"
+	"go-hex-temp/internal/core/domain"
 	"go-hex-temp/internal/infrastructure/logx"
 	"go-hex-temp/internal/ports/input"
 	"net/http"
@@ -42,5 +44,24 @@ func (h *userHandler) FindUsers(c *gin.Context) {
 	}
 	_ = users
 	c.JSON(200, query)
+}
 
+func (h *userHandler) FindUserById(c *gin.Context) {
+
+	user, err := h.userService.GetUserById(c.Param("userId"))
+	if err != nil {
+		logx.Errorf("compile query failed: %v", err)
+		return
+	}
+
+	r := jsonapi.Resource[*domain.User]{
+		Type:          "user",
+		ID:            user.ID,
+		Attributes:    user,
+		Relationships: map[string]jsonapi.Relationship{},
+	}
+
+	userApi := jsonapi.NewSingle(r)
+
+	c.JSON(200, userApi)
 }

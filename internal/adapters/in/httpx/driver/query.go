@@ -14,7 +14,7 @@ func ClaimQuery(c *gin.Context) *domain.Query {
 
 	query := &domain.Query{
 		Filter:     make(domain.Filter),
-		Pagination: new(domain.Pagination),
+		Pagination: new(domain.QPagination),
 	}
 
 	for rawKey, qVals := range params {
@@ -38,7 +38,7 @@ func ClaimQuery(c *gin.Context) *domain.Query {
 						direction = domain.Desc
 						key = val[1:]
 					}
-					query.Pagination.Sorts = append(query.Pagination.Sorts, domain.Sort{
+					query.Pagination.Sorts = append(query.Pagination.Sorts, domain.QSort{
 						Key:       key,
 						Direction: direction,
 					})
@@ -56,7 +56,7 @@ func ClaimQuery(c *gin.Context) *domain.Query {
 					op := domain.Operator(opRaw)
 
 					if _, exists := query.Filter[field]; !exists {
-						query.Filter[field] = make(domain.Condition)
+						query.Filter[field] = make(domain.QCondition)
 					}
 
 					query.Filter[field][op] = append(query.Filter[field][op], val)

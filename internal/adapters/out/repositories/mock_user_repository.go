@@ -1,4 +1,4 @@
-package mock_user
+package repositories
 
 import (
 	"go-hex-temp/internal/core/domain"
@@ -11,9 +11,9 @@ type UserRepositoryMock struct {
 }
 
 // Find mocks searching for users with a query.
-func (u *UserRepositoryMock) Find(query *domain.Query) ([]domain.User, error) {
+func (u *UserRepositoryMock) Find(query *domain.Query) (*domain.Paginated[domain.User], error) {
 	args := u.Called(query)
-	if users, ok := args.Get(0).([]domain.User); ok {
+	if users, ok := args.Get(0).(*domain.Paginated[domain.User]); ok {
 		return users, args.Error(1)
 	}
 	return nil, args.Error(1)
